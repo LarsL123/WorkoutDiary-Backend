@@ -1,0 +1,4 @@
+{
+  "jwtPrivateKey": "workout_jwtPrivateKey",
+  "db": "workout_db"
+}
