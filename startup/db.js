@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require("../services/logger");
+// logger = require("../services/logger");
 const config = require("config");
 
 module.exports = function() {
@@ -9,9 +9,9 @@ module.exports = function() {
       useCreateIndex: true,
       useNewUrlParser: true
     })
-    .then(() => logger.info(`Connected to ${database}..`))
+    .then(() => console.log(`Connected to ${database}..`)) //TODO Change to default logger
     .catch(err => {
-      logger.error(`Was not able to connect to ${database}, shutting down:`);
+      console.error(`Was not able to connect to ${database}, shutting down:`); //TODO Change to default logger
       process.exit(1);
     });
 };

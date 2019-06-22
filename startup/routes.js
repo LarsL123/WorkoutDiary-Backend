@@ -1,9 +1,9 @@
 const express = require("express");
-const testRoute = require("../routes/testRoute");
+const activities = require("../routes/activities");
 
 module.exports = function(app) {
   app.use(express.json());
-  app.use("/api/test", testRoute);
+  app.use("/api/activities", activities);
 
   //app.use(error); // Add error middlewear ??
 };
