@@ -24,4 +24,23 @@ router.post("/", async (req, res) => {
   res.send(activity);
 });
 
+router.put("/:id", validateObjectId, async (req, res) => {
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+  const activity = await Activity.findByIdAndUpdate(
+    req.params.id,
+    { name: req.body.name },
+    { new: true }
+  );
+
+  if (!activity) return res.status(404).send("Did not find the activity");
+  res.send(activity);
+});
+
+router.delete("/:id", validateObjectId, async (req, res) => {
+  const activity = await Activity.findByIdAndDelete(req.params.id);
+  if (!activity) return res.status(404).send("Did not find the activity");
+  res.send(activity);
+});
+
 module.exports = router;

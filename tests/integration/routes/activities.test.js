@@ -53,10 +53,10 @@ describe("/api/activities", () => {
         .get("/api/activities/" + id)
         .send();
     };
-    it("should return 404 if the id is invalid", async () => {
+    it("should return 400 if the id is invalid", async () => {
       id = 1;
       const res = await exec();
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(400);
     });
     it("should return 404 if the id was not found", async () => {
       id = mongoose.Types.ObjectId();
@@ -71,7 +71,7 @@ describe("/api/activities", () => {
 
   describe("POST /", () => {
     let name;
-    let token;
+    let token; //TODO implement authorization
     beforeEach(() => {
       name = "activity1";
     });
@@ -91,13 +91,104 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    it("should return 4xx if client is not an admin", () => {}); //TODO implement authorization and roles
+    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
     it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
     it("should save the activity if it was valid", async () => {
       const res = await exec();
-      const activity = Activity.find({ name: "genre1" });
+      const activity = await Activity.find({ name: "activity1" });
       expect(activity).not.toBeNull();
     });
-    it("should return the activity if it was successfully created", () => {});
+    it("should return the activity if it was successfully created", async () => {
+      const res = await exec();
+      expect(res.body).toHaveProperty("_id");
+      expect(res.body).toHaveProperty("name", "activity1");
+    });
+  });
+  describe("PUT /:id", () => {
+    let id;
+    let newName;
+    let activity;
+    const exec = () => {
+      return request(server)
+        .put("/api/activities/" + id)
+        .send({ name: newName });
+    };
+    beforeEach(async () => {
+      activity = new Activity({ name: "activity1" });
+      await activity.save();
+
+      id = activity._id;
+      newName = "updatedName";
+    });
+    afterEach(async () => {
+      await Activity.deleteMany({});
+    });
+    it("should return 400 if objectId was invalid", async () => {
+      id = 1;
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+    it("should return 400 if name is less than 3 characters", async () => {
+      newName = 12;
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+    it("should return 400 if name is more than 70 characters", async () => {
+      newName = Array(72).join("a");
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
+    it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
+    it("should update the genre in DB", async () => {
+      await exec();
+      const activity = await Activity.find({ name: "updatedName" });
+      expect(activity).not.toBeNull();
+    });
+    it("should return the updated genre", async () => {
+      const res = await exec();
+      expect(res.body).toHaveProperty("_id");
+      expect(res.body).toHaveProperty("name", newName);
+    });
+  });
+
+  describe("DELETE /:id", async () => {
+    let activity;
+    let id;
+    beforeEach(async () => {
+      activity = new Activity({ name: "activity1" });
+      await activity.save();
+      id = activity._id;
+    });
+    afterEach(async () => {
+      await Activity.deleteMany({});
+    });
+
+    const exec = () => {
+      return request(server)
+        .delete("/api/activities/" + id)
+        .send();
+    };
+    it("should return 400 if objectId was invalid", async () => {
+      id = 123;
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+    it("should return 404 if the id was not found", async () => {
+      id = mongoose.Types.ObjectId();
+      const res = await exec();
+      expect(res.status).toBe(404);
+    });
+    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
+    it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
+    it("should delete the activity", async () => {
+      await exec();
+      const activity = await Activity.findById(id);
+      expect(activity).toBeNull();
+    });
+    it("should retrun the deleted genre", async () => {
+      const res = await exec();
+      expect(res.body).toHaveProperty("name", "activity1");
+    });
   });
 });

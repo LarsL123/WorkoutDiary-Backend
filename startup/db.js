@@ -7,7 +7,8 @@ module.exports = function() {
   mongoose
     .connect(database, {
       useCreateIndex: true,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useFindAndModify: false
     })
     .then(() => console.log(`Connected to ${database}..`)) //TODO Change to default logger
     .catch(err => {
