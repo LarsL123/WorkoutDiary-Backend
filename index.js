@@ -7,7 +7,7 @@ require("./startup/config")();
 require("./startup/routes")(app);
 require("./startup/db")();
 require("./startup/validation")();
-require("./startup/production")(app);
+require("./startup/production")(app); //TODO: Need to read more about helmet...
 
 const port = process.env.PORT || 3000;
 const server = app.listen(
