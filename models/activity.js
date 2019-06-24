@@ -15,11 +15,12 @@ const Activity = mogoose.model(
 
 function validateActivity(activity) {
   const schema = {
-    name: Joi.String()
-      .minlength(3)
-      .maxlength(70)
+    name: Joi.string()
+      .min(3)
+      .max(70)
       .required()
   };
+  return Joi.validate(activity, schema);
 }
 
 exports.validate = validateActivity;
