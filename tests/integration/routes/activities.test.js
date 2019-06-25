@@ -1,6 +1,7 @@
 const request = require("supertest");
 const { Activity } = require("../../../models/activity");
 const mongoose = require("mongoose");
+const { User } = require("../../../models/user");
 
 /*
  *  Endpoints:
@@ -71,13 +72,15 @@ describe("/api/activities", () => {
 
   describe("POST /", () => {
     let name;
-    let token; //TODO implement authorization
+    let token;
     beforeEach(() => {
       name = "activity1";
+      token = new User({ isAdmin: true }).generateAuthToken();
     });
     const exec = () => {
       return request(server)
         .post("/api/activities")
+        .set("x-auth-token", token)
         .send({ name });
     };
 
@@ -91,8 +94,16 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
-    it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
+    it("should return 403 if client is not an admin", async () => {
+      token = new User().generateAuthToken();
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
     it("should save the activity if it was valid", async () => {
       const res = await exec();
       const activity = await Activity.find({ name: "activity1" });
@@ -108,9 +119,11 @@ describe("/api/activities", () => {
     let id;
     let newName;
     let activity;
+    let token;
     const exec = () => {
       return request(server)
         .put("/api/activities/" + id)
+        .set("x-auth-token", token)
         .send({ name: newName });
     };
     beforeEach(async () => {
@@ -119,6 +132,7 @@ describe("/api/activities", () => {
 
       id = activity._id;
       newName = "updatedName";
+      token = new User({ isAdmin: true }).generateAuthToken();
     });
     afterEach(async () => {
       await Activity.deleteMany({});
@@ -138,8 +152,16 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
-    it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
+    it("should return 403 if client is not an admin", async () => {
+      token = new User().generateAuthToken();
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
     it("should update the genre in DB", async () => {
       await exec();
       const activity = await Activity.find({ name: "updatedName" });
@@ -155,10 +177,12 @@ describe("/api/activities", () => {
   describe("DELETE /:id", async () => {
     let activity;
     let id;
+    let token;
     beforeEach(async () => {
       activity = new Activity({ name: "activity1" });
       await activity.save();
       id = activity._id;
+      token = new User({ isAdmin: true }).generateAuthToken();
     });
     afterEach(async () => {
       await Activity.deleteMany({});
@@ -167,6 +191,7 @@ describe("/api/activities", () => {
     const exec = () => {
       return request(server)
         .delete("/api/activities/" + id)
+        .set("x-auth-token", token)
         .send();
     };
     it("should return 400 if objectId was invalid", async () => {
@@ -179,8 +204,16 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(404);
     });
-    it("should return 403 if client is not an admin", () => {}); //TODO implement authorization and roles
-    it("should return 401 if client is not logged in", () => {}); //TODO implement authorization
+    it("should return 403 if client is not an admin", async () => {
+      token = new User().generateAuthToken();
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
     it("should delete the activity", async () => {
       await exec();
       const activity = await Activity.findById(id);
