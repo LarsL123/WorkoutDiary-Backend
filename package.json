@@ -17,6 +17,9 @@
     "url": "https://github.com/LarsL123/WorkoutDiary-Backend/issues"
   },
   "homepage": "https://github.com/LarsL123/WorkoutDiary-Backend#readme",
+  "jest": {
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "bcrypt": "^3.0.6",
     "compression": "^1.7.4",

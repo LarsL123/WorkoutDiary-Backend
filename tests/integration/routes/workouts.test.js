@@ -28,11 +28,6 @@ describe("/api/workouts", () => {
         .set("x-auth-token", token)
         .send();
     };
+    it("has to be implemented....", () => {});
   });
 });
-
-/* it("should return 400 if user is not logged in", () => {});
-    it("should return 400 if the user allredy has an userData object in the collection", () => {});
-    it("should create an userData entry on the server", () => {});
-    it("should return 200 and message 'done' if the request was successfull", () => {});
-    */
