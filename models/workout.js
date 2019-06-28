@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const joi = require("joi");
 
 const workoutSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -7,11 +8,11 @@ const workoutSchema = new mongoose.Schema({
 
 function validateWorkout(workout) {
   const schema = {
-    title: Joi.string().required(),
+    title: joi.string().required(),
     //type: Joi.string().required(),
-    description: Joi.string()
+    description: joi.string()
   };
-  return Joi.validate(workout, schema);
+  return joi.validate(workout, schema);
 }
 
 exports.Workout = mongoose.model("Workout", workoutSchema);

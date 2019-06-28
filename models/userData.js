@@ -7,7 +7,7 @@ const UserData = mogoose.model(
   new mogoose.Schema({
     user: { type: mogoose.Types.ObjectId, required: true },
     data: {
-      type: [Workout.schema]
+      type: []
     }
   })
 );
