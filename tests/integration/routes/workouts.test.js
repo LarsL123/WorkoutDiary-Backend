@@ -1,11 +1,11 @@
 const request = require("request");
 const { User } = require("../../../models/user");
 
-//DELETE => Delete an activity if it does not have any information.
+//DELETE => Delete an activity
 //POST => Should add a new activity to the array
-//PUT => Edit an activity
+//PUT /:id => Edit an activity
 //GET => Get all activities?? or a range of ectivities??
-//GET /:id get a specific elemt of the array.
+//GET /:id get a specific elemet of the array.
 describe("/api/workouts", () => {
   let server;
   beforeEach(() => {
@@ -26,8 +26,12 @@ describe("/api/workouts", () => {
       return request(server)
         .post("/api/workouts")
         .set("x-auth-token", token)
-        .send();
+        .send({});
     };
-    it("has to be implemented....", () => {});
+    it("should return 401 if user is not logged in", async () => {
+      token = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
   });
 });

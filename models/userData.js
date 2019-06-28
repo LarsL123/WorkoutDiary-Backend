@@ -12,10 +12,4 @@ const UserData = mogoose.model(
   })
 );
 
-function validateUserData(UserData) {
-  const schema = {
-    user: Joi.objectId().required()
-  };
-}
-
 exports.UserData = UserData;
