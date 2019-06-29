@@ -46,8 +46,8 @@ describe("/api/activities", () => {
       await activity.save();
       id = activity._id;
     });
-    afterEach(() => {
-      Activity.deleteMany({});
+    afterEach(async () => {
+      await Activity.deleteMany({});
     });
     const exec = () => {
       return request(server)
@@ -174,7 +174,7 @@ describe("/api/activities", () => {
     });
   });
 
-  describe("DELETE /:id", async () => {
+  describe("DELETE /:id", () => {
     let activity;
     let id;
     let token;

@@ -3,7 +3,7 @@
 //Middlewear that catches all asyncronus errors in the requst processing pipline
 module.exports = function(err, req, res, next) {
   //winston.error("Something failed in express: ", err); //TODO implemet a logger
-  console.log("something failed in express", err);
+  console.log("Sfomething failed in express", err);
   res.status(500).send("Something failed");
 };
 

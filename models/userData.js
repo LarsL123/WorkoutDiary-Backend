@@ -1,12 +1,15 @@
 const mogoose = require("mongoose");
 const Joi = require("joi");
+const { Workout } = require("./workout");
 
 const UserData = mogoose.model(
   "UserData",
   new mogoose.Schema({
-    user: {}, //Link to the user.
-    data: {} //All data for all workouts for this user.
+    user: { type: mogoose.Types.ObjectId, required: true },
+    data: {
+      type: [Workout.schema] //TODO: Should i make the array of type Workouts.schema or leave it as a mixed Array?
+    }
   })
 );
 
-exports.Activity = Activity;
+exports.UserData = UserData;
