@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --verbose --runInBand --coverage",
+    "test-circleci": "jest --runInBand",
     "start": "node index.js"
   },
   "repository": {
