@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose --runInBand --coverage",
-    "testci": "jest --runInBand",
+    "test": "jest --runInBand",
+    "testci": "jest --watchAll --verbose --runInBand --coverage",
     "start": "node index.js"
   },
   "repository": {
