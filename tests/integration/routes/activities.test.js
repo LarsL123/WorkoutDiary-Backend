@@ -105,7 +105,7 @@ describe("/api/activities", () => {
       expect(res.status).toBe(401);
     });
     it("should save the activity if it was valid", async () => {
-      const res = await exec();
+      await exec();
       const activity = await Activity.find({ name: "activity1" });
       expect(activity).not.toBeNull();
     });
