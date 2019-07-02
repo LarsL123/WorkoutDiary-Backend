@@ -9,6 +9,9 @@ describe(" auth.js middlewear", () => {
   it("should return 500 when called", () => {
     res = { status: jest.fn().mockReturnValue({ send: jest.fn() }) };
     next = jest.fn();
+    err = {
+      message: "This error message was triggerd by the error middlewear test!"
+    };
 
     error(err, req, res, next);
 

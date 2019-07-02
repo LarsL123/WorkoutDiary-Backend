@@ -32,13 +32,21 @@ router.post("/", auth, async (req, res) => {
   );
   res.send(data);
 });
+router.put("/:id", [auth, validateObjectId], async (req, res) => {
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  res.send("End of put");
+});
 router.delete("/:id", [auth, validateObjectId], async (req, res) => {
-  const workout = await UserData.findOneAndUpdate(
+  const workouts = await UserData.findOneAndUpdate(
     { user: req.user._id },
     { $pull: { data: { _id: req.params.id } } }
   );
-  if (!workout) return res.status(404).send("Did not find the workout");
-  res.send();
+
+  const deletedWorkout = workouts.data.find(w => w._id == req.params.id); //Returns true if the deleted document existed before the delete operation.
+  if (!deletedWorkout) return res.status(404).send("Did not find the workout");
+  res.send(deletedWorkout);
 });
 
 module.exports = router;
