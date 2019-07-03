@@ -155,11 +155,25 @@ describe("/api/workouts", () => {
       expect(res.status).toBe(400);
     });
     it("should return 400 if the wourkout was not found", async () => {
-      // workoutId = new mongoose.Types.ObjectId();
-      //TDOD => ...
+      workoutId = new mongoose.Types.ObjectId();
+      const res = await exec();
+      expect(res.status).toBe(400);
     });
-    it("should update the entry in the DB", async () => {});
-    it("should return the updated workout", async () => {});
+    it("should update the entry in the DB", async () => {
+      await exec();
+
+      const userDataInDB = await UserData.findOne({ user: user._id });
+      const workoutInDB = userDataInDB.data.find(
+        w => w._id.toHexString() == workoutId
+      );
+      expect(workoutInDB).toHaveProperty("title", paylod.title);
+      expect(workoutInDB).toHaveProperty("description", paylod.description);
+    });
+    it("should return the updated workout", async () => {
+      const res = await exec();
+      expect(res.body).toHaveProperty("title", paylod.title);
+      expect(res.body).toHaveProperty("description", paylod.description);
+    });
   });
 
   describe("DELETE /", () => {

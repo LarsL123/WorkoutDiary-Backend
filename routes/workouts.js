@@ -36,7 +36,20 @@ router.put("/:id", [auth, validateObjectId], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  res.send("End of put");
+  const newWorkout = {
+    _id: req.params.id,
+    title: req.body.title,
+    description: req.body.description
+  };
+  const result = await UserData.updateOne(
+    { user: req.user._id, "data._id": req.params.id },
+    { $set: { "data.$": newWorkout } }
+  );
+
+  if (result.nModified === 0)
+    return res.status(400).send("Did not find the workout");
+
+  res.send(newWorkout);
 });
 router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   const workouts = await UserData.findOneAndUpdate(
