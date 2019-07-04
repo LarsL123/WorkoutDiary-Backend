@@ -18,7 +18,7 @@ jobs: # a collection of steps
           command: "npm install"
       - run:
           name: install-jest-cli
-          command: "npm install -g jest-cli"
+          command: "sudo npm install -g jest-cli"
       - save_cache: # special step to save the dependency cache
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
