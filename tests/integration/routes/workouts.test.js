@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const { User } = require("../../../models/user");
 const { UserData } = require("../../../models/userData");
 const { Workout } = require("../../../models/workout");
-//PUT /:id => Edit an activity
 //GET /:id get a specific elemet of the array.
 //GET /:(date-from)/:(date-to) return all the workouts in a specific timespan.
 describe("/api/workouts", () => {
@@ -51,6 +50,10 @@ describe("/api/workouts", () => {
       expect(res.body[0]).toHaveProperty("title", "workout1");
       expect(res.body[0]).toHaveProperty("description");
     });
+  });
+
+  describe("GET /:from /:to", () => {
+    //TODO add date specified endpoint
   });
 
   describe("POST /", () => {
