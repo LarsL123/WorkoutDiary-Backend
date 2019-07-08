@@ -1,5 +1,4 @@
 const mogoose = require("mongoose");
-const Joi = require("joi");
 const { Workout } = require("./workout");
 
 const UserData = mogoose.model(
@@ -7,7 +6,7 @@ const UserData = mogoose.model(
   new mogoose.Schema({
     user: { type: mogoose.Types.ObjectId, required: true },
     data: {
-      type: [Workout.schema] //TODO: Should i make the array of type Workouts.schema or leave it as a mixed Array?
+      type: [Workout.schema]
     }
   })
 );
