@@ -15,10 +15,11 @@ const { User } = require("../../../models/user");
 describe("/api/activities", () => {
   let server;
 
-  beforeEach(() => {
+  beforeAll(() => {
     server = require("../../../index");
   });
-  afterEach(async () => {
+
+  afterAll(async () => {
     await Activity.deleteMany({});
     await server.close();
   });
@@ -76,6 +77,10 @@ describe("/api/activities", () => {
     beforeEach(() => {
       name = "activity1";
       token = new User({ isAdmin: true }).generateAuthToken();
+    });
+
+    afterEach(async () => {
+      await Activity.deleteMany({});
     });
     const exec = () => {
       return request(server)

@@ -3,10 +3,11 @@ const { UserData } = require("../../../models/userData");
 
 describe("user", () => {
   let server;
-  beforeEach(() => {
+  beforeAll(() => {
     server = require("../../../index");
   });
-  afterEach(async () => {
+
+  afterAll(async () => {
     await server.close();
   });
 

@@ -10,11 +10,11 @@ const { Workout } = require("../../../models/workout");
 
 describe("/api/workouts", () => {
   let server;
-  beforeEach(() => {
+  beforeAll(() => {
     server = require("../../../index");
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await server.close();
   });
 
