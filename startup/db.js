@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 // logger = require("../services/logger");
 const config = require("config");
 
-module.exports = function() {
+module.exports.startDB = function() {
   const database = config.get("db");
   mongoose
     .connect(database, {
@@ -15,4 +15,7 @@ module.exports = function() {
       console.error(`Was not able to connect to ${database}, shutting down:`); //TODO Change to default logger
       process.exit(1);
     });
+};
+module.exports.stopDB = async function() {
+  await mongoose.disconnect();
 };

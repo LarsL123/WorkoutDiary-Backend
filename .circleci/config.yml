@@ -25,7 +25,7 @@ jobs: # a collection of steps
             - ./node_modules
       - run: # run tests
           name: test
-          command: jest --verbose --runInBand  --coverage --forceExit
+          command: jest --verbose --runInBand  --coverage
       #   - run: # run coverage report
       #       name: code-coverage
       #       command: './node_modules/.bin/nyc report --reporter=text-lcov'
