@@ -33,7 +33,6 @@ describe("joiValidation middlewear", () => {
       req = { body };
       res = { status: jest.fn().mockReturnValue({ send: jest.fn() }) };
       next = jest.fn();
-      console.log(mwfunc(req, res, next));
       return mwfunc(req, res, next);
     };
     it("should return 400 if req.body contains any properties not specified in the given validator", () => {

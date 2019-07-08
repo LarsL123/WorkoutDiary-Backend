@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 const joi = require("joi");
 
-const Workout = mongoose.model(
-  "Workout",
-  new mongoose.Schema({
-    title: { type: String, required: true },
-    description: { type: String },
-    type: { type: String, default: "other" }
-  })
-);
+let Workout;
+
+const workoutSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  type: { type: String, default: "other" }
+});
 
 function validateWorkout(workout) {
   const schema = {
@@ -19,16 +18,19 @@ function validateWorkout(workout) {
   return joi.validate(workout, schema);
 }
 
-Workout.schema.statics.createWorkoutFromId = function(body, id) {
-  const workout = body;
+workoutSchema.statics.createWorkoutFromId = function(body, id) {
+  const workout = new Workout(body);
   workout._id = id;
+  console.log(workout);
   return workout;
 };
 
-Workout.schema.statics.createNewWorkout = function(body) {
+workoutSchema.statics.createNewWorkout = function(body) {
   const workout = body;
   return new Workout(workout);
 };
+
+Workout = mongoose.model("Workout", workoutSchema);
 
 exports.Workout = Workout;
 exports.validate = validateWorkout;
