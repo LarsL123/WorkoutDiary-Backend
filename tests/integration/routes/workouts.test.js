@@ -81,8 +81,8 @@ describe("/api/workouts", () => {
       expect(res.status).toBe(401);
     });
 
-    it("should return 400 if one of the inputvalues are incorrect", async () => {
-      workout = { description: "A new description" };
+    it("should return 400 if an undefined fealds are sendt", async () => {
+      workout = { aRandomValue: "randomString" };
       const res = await exec();
       expect(res.status).toBe(400);
     });
@@ -146,11 +146,12 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    it("should return 400 if a required field is missing", async () => {
-      delete paylod.title;
-      const res = await exec();
-      expect(res.status).toBe(400);
-    });
+    //Are there any required fealds
+    // it("should return 400 if a required field is missing", async () => {
+    //   delete paylod.title;
+    //   const res = await exec();
+    //   expect(res.status).toBe(400);
+    // });
     it("should return 400 if the request contains an extra fields", async () => {
       paylod.randomNewProptery = "A suspicious string";
       const res = await exec();

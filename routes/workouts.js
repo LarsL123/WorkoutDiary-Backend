@@ -18,10 +18,7 @@ router.get("/", auth, async (req, res) => {
   res.send(data);
 });
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
-  let workout = new Workout({
-    title: req.body.title,
-    description: req.body.description
-  });
+  const workout = Workout.createNewWorkout(req.body);
 
   const { data } = await UserData.findOneAndUpdate(
     { user: mongoose.Types.ObjectId(req.user._id) },
@@ -34,11 +31,8 @@ router.put(
   "/:id",
   [auth, validateObjectId, joiValidation(validate)],
   async (req, res) => {
-    const newWorkout = {
-      _id: req.params.id,
-      title: req.body.title,
-      description: req.body.description
-    };
+    const newWorkout = Workout.createWorkoutFromId(req.body, req.params.id);
+
     const result = await UserData.updateOne(
       { user: req.user._id, "data._id": req.params.id },
       { $set: { "data.$": newWorkout } }
