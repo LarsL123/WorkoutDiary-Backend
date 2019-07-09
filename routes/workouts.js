@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
+const joiValidation = require("../middlewear/joiValidation");
 
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
@@ -16,10 +17,7 @@ router.get("/", auth, async (req, res) => {
   const { data } = userData[0];
   res.send(data);
 });
-router.post("/", auth, async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
+router.post("/", [auth, joiValidation(validate)], async (req, res) => {
   let workout = new Workout({
     title: req.body.title,
     description: req.body.description
@@ -32,25 +30,26 @@ router.post("/", auth, async (req, res) => {
   );
   res.send(data);
 });
-router.put("/:id", [auth, validateObjectId], async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.put(
+  "/:id",
+  [auth, validateObjectId, joiValidation(validate)],
+  async (req, res) => {
+    const newWorkout = {
+      _id: req.params.id,
+      title: req.body.title,
+      description: req.body.description
+    };
+    const result = await UserData.updateOne(
+      { user: req.user._id, "data._id": req.params.id },
+      { $set: { "data.$": newWorkout } }
+    );
 
-  const newWorkout = {
-    _id: req.params.id,
-    title: req.body.title,
-    description: req.body.description
-  };
-  const result = await UserData.updateOne(
-    { user: req.user._id, "data._id": req.params.id },
-    { $set: { "data.$": newWorkout } }
-  );
+    if (result.nModified === 0)
+      return res.status(400).send("Did not find the workout");
 
-  if (result.nModified === 0)
-    return res.status(400).send("Did not find the workout");
-
-  res.send(newWorkout);
-});
+    res.send(newWorkout);
+  }
+);
 router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   const workouts = await UserData.findOneAndUpdate(
     { user: req.user._id },

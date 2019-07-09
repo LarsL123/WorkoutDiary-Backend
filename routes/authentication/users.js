@@ -5,6 +5,7 @@ const express = require("express");
 const router = express.Router();
 const { User, validate } = require("../../models/user");
 const auth = require("../../middlewear/auth");
+const joiValidation = require("../../middlewear/joiValidation");
 
 //  This is the endpoint were new users should register their accounts
 
@@ -13,7 +14,7 @@ router.get("/me", auth, async (req, res) => {
   res.send(user);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", joiValidation(validate), async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
