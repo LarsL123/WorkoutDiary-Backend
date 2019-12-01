@@ -20,12 +20,12 @@ router.get("/", auth, async (req, res) => {
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
   const workout = Workout.createNewWorkout(req.body);
 
-  const { data } = await UserData.findOneAndUpdate(
+  await UserData.findOneAndUpdate(
     { user: mongoose.Types.ObjectId(req.user._id) },
-    { $push: { data: workout } },
-    { new: true }
+    { $push: { data: workout } }
   );
-  res.send(data);
+
+  res.send(workout);
 });
 router.put(
   "/:id",

@@ -96,8 +96,8 @@ describe("/api/workouts", () => {
 
     it("should return the newly created workout object", async () => {
       const res = await exec();
-      expect(res.body[0]).toHaveProperty("title", "workout1");
-      expect(res.body[0]).toHaveProperty("description", "This is a workout");
+      expect(res.body).toHaveProperty("title", "workout1");
+      expect(res.body).toHaveProperty("description", "This is a workout");
     });
   });
 
