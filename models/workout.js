@@ -10,13 +10,13 @@ const workoutSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   kilometers: { type: Number, min: 0, max: 1000 },
   zones: {
-    1: { type: Number, min: 0 },
-    2: { type: Number, min: 0 },
-    3: { type: Number, min: 0 },
-    4: { type: Number, min: 0 },
-    5: { type: Number, min: 0 },
-    6: { type: Number, min: 0 },
-    7: { type: Number, min: 0 }
+    1: { type: Number, min: 0, default: 0 },
+    2: { type: Number, min: 0, default: 0 },
+    3: { type: Number, min: 0, default: 0 },
+    4: { type: Number, min: 0, default: 0 },
+    5: { type: Number, min: 0, default: 0 },
+    6: { type: Number, min: 0, default: 0 },
+    7: { type: Number, min: 0, default: 0 }
   }
 });
 

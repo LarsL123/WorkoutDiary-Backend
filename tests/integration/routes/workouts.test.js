@@ -157,10 +157,10 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    it("should return 400 if the wourkout was not found", async () => {
+    it("should return 404 if the wourkout was not found", async () => {
       workoutId = new mongoose.Types.ObjectId();
       const res = await exec();
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
     });
     it("should update the entry in the DB", async () => {
       await exec();
