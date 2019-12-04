@@ -38,8 +38,13 @@ router.put(
       { $set: { "data.$": newWorkout } }
     );
 
-    if (result.nModified === 0)
-      return res.status(400).send("Did not find the workout");
+    if (result.n === 0) {
+      return res.status(404).send("The workout does not exist");
+    }
+
+    if (result.nModified === 0) {
+      return res.send("No workout was modified.");
+    }
 
     res.send(newWorkout);
   }
