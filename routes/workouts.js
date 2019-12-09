@@ -11,10 +11,16 @@ const mongoose = require("mongoose");
 //Get the last elements of an array: https://docs.mongodb.com/manual/reference/operator/projection/slice/
 
 router.get("/", auth, async (req, res) => {
-  const userData = await UserData.find({
-    user: mongoose.Types.ObjectId(req.user._id)
+  const { data } = await UserData.findOne(
+    {
+      user: mongoose.Types.ObjectId(req.user._id)
+    },
+    { data: 1 }
+  );
+  data.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
   });
-  const { data } = userData[0];
+
   res.send(data);
 });
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
