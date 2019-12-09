@@ -1,11 +1,11 @@
-version: 2 # use CircleCI 2.0
-jobs: # a collection of steps
-  build: # runs not using Workflows must have a `build` job as entry point
-    working_directory: ~/mern-starter # directory where steps will run
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo # directory where steps will run
     docker: # run the steps with Docker
       - image: circleci/node:10.15.3 # ...with this image as the primary container; this is where all `steps` will run
       - image: mongo:3.4.4 # and this image as the secondary service container
-    steps: # a collection of executable commands
+    steps:
       - checkout # special step to check out source code to working directory
       - run:
           name: update-npm
@@ -14,18 +14,33 @@ jobs: # a collection of steps
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: install-npm-wee
+          name: install-npm-packages
           command: "npm install"
       - run:
-          name: install-jest-cli
+          name: install-jest-cli Try to cash seperately from  standard dependencies
           command: "sudo npm install -g jest-cli"
       - save_cache: # special step to save the dependency cache
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      - run: # run tests
-          name: test
-          command: jest --verbose --runInBand  --coverage
+      - run:
+          name: Run all tests
+          command: npm run ci:test
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+    
+      - run:
+            name: Install Docker client
+            command: |
+            set -x
+            VER="18.06.3-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+
+      - run: yarn ci:docker
+
       #   - run: # run coverage report
       #       name: code-coverage
       #       command: './node_modules/.bin/nyc report --reporter=text-lcov'
