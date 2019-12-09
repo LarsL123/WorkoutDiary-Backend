@@ -29,7 +29,7 @@ jobs:
 
       - setup_remote_docker:
 
-      - run: yarn ci:docker
+      - run: npm run ci:docker
 
       #   - run: # run coverage report
       #       name: code-coverage
