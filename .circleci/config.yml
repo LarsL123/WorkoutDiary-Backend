@@ -28,7 +28,6 @@ jobs:
           command: npm run ci:test
 
       - setup_remote_docker:
-          docker_layer_caching: true
 
       - run: yarn ci:docker
 
