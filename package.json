@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --verbose --runInBand --coverage",
-    "start": "node index.js"
+    "start": "node index.js",
+    "ci:test": "jest --verbose --runInBand  --coverage",
+    "docker:build": "docker build -t larsl123/workoutdiarybackend:latest .",
+    "docker:login": "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD",
+    "docker:push": "docker push larsl123/workoutdiarybackend:latest",
+    "ci:docker": "npm run docker:build && npm run docker:login && npm run docker:push"
   },
   "repository": {
     "type": "git",
