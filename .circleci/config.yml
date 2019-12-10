@@ -40,7 +40,6 @@ jobs:
 
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Building and uploading image to DockerHub
           command: npm run ci:docker
