@@ -33,9 +33,14 @@ jobs:
           path: coverage
           prefix: coverage
 
-    deploy:
+  deploy:
+    machine:
+      enabled: true
+    working_directory: ~/repo
+
+    steps:
       - checkout
-      - setup_remote_docker:
+      - setup_remote_docker
       - run:
           name: Building and uploading image to DockerHub
           command: npm run ci:docker
