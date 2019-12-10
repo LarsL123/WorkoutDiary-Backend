@@ -14,33 +14,41 @@ jobs:
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: install-npm-packages
+          name: Install dependencies
           command: "npm install"
-      - run:
-          name: install-jest-cli Try to cash seperately from  standard dependencies
-          command: "sudo npm install -g jest-cli"
+
       - save_cache: # special step to save the dependency cache
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - run:
+          name: install-jest-cli #TODO: Try to cache seperately from  standard dependencies
+          command: "sudo npm install -g jest-cli"
+
+      - run:
           name: Run all tests
           command: npm run ci:test
 
-      - setup_remote_docker:
-
-      - run: npm run ci:docker
-
-      #   - run: # run coverage report
-      #       name: code-coverage
-      #       command: './node_modules/.bin/nyc report --reporter=text-lcov'
-      - store_artifacts: # special step to save test results as as artifact
-          # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: test-results.xml
-          prefix: tests
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: coverage
           prefix: coverage
-      - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: test-results.xml
-      # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
+
+    deploy:
+      - checkout
+      - setup_remote_docker:
+      - run:
+          name: Building and uploading image to DockerHub
+          command: npm run ci:docker
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+  # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
