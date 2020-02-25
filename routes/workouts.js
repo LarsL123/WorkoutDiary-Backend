@@ -3,6 +3,7 @@ const router = express.Router();
 const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
 const joiValidation = require("../middlewear/joiValidation");
+const validateParam = require("../middlewear/validateParam");
 
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
@@ -17,12 +18,45 @@ router.get("/", auth, async (req, res) => {
     },
     { data: 1 }
   );
+
   data.sort((a, b) => {
     return new Date(b.date) - new Date(a.date);
   });
 
   res.send(data);
 });
+
+router.get(
+  "/:from/:to",
+  [
+    auth,
+    validateParam(Workout.validateDate, "from"),
+    validateParam(Workout.validateDate, "to")
+  ],
+  async (req, res) => {
+    const { data } = await UserData.findOne(
+      {
+        user: mongoose.Types.ObjectId(req.user._id)
+      },
+      {
+        data: {
+          $elemMatch: {
+            date: {
+              $gte: req.params.from,
+              $lt: req.params.to
+            }
+          }
+        }
+      }
+    );
+    data.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    res.send(data);
+  }
+);
+
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
   const workout = Workout.createNewWorkout(req.body);
 

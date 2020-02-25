@@ -1,9 +1,9 @@
-const joiValidator = require("../../../middlewear/joiValidation");
-const joi = require("joi");
+const validateParam = require("../../../middlewear/validateParam");
+const Joi = require("joi");
 
-describe("joiValidation middlewear", () => {
+describe("route param validation", () => {
   it("should return a middlewear function", () => {
-    const res = joiValidator(null);
+    const res = validateParam(null);
     expect(res).toBeInstanceOf(Function);
   });
   
@@ -13,41 +13,38 @@ describe("joiValidation middlewear", () => {
     let next;
     let mwfunc;
     let validator;
-    let body;
+    let paramPath;
+    let params;
 
     beforeEach(() => {
-      body = { string1: "A string", number1: 1234 };
-      validator = function(obj) {
-        const schema = {
-          string1: joi.string().required(),
-          number1: joi.number().required()
-        };
-
-        return joi.validate(obj, schema);
+      params = { param1: "A String Parameter" };
+      paramPath = "param1";
+      validator = function(string1) {
+        return Joi.string().required().validate(string1);
       };
 
-      mwfunc = joiValidator(validator);
+      mwfunc = validateParam(validator, paramPath);
     });
 
     const exec = () => {
-      req = { body };
+      req = { params };
       res = { status: jest.fn().mockReturnValue({ send: jest.fn() }) };
       next = jest.fn();
       return mwfunc(req, res, next);
     };
-    it("should return 400 if req.body contains any properties not specified in the given validator", () => {
-      body.notSpecified =
-        "This is a vaue not specified in the validation schema";
+
+    it("should return 400 if req.params[paramPath] is an object with any properties not specified in the given validator", () => {
+      params[paramPath]={ notSpecified:"This is a vaue not specified in the validation schema" };
       exec();
       expect(res.status).toHaveBeenCalledWith(400);
     });
     it("should return 400 if req.body did not contain a required argument", () => {
-      delete body.string1;
+      delete params[paramPath];
       exec();
       expect(res.status).toHaveBeenCalledWith(400);
     });
-    it("should return 400 if any of the required arguments in req.body is of wrong type", () => {
-      body.number1 = "notANumber";
+    it("should return 400 if the paramter is of wrong type", () => {
+      params[paramPath] = 123; //Not a String
       exec();
       expect(res.status).toHaveBeenCalledWith(400);
     });
