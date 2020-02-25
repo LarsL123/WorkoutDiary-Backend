@@ -54,6 +54,10 @@ workoutSchema.statics.createNewWorkout = function(body) {
   return new Workout(workout);
 };
 
+workoutSchema.statics.validateDate = function(date){
+  return joi.date().required().validate(date);
+}
+
 Workout = mongoose.model("Workout", workoutSchema);
 
 exports.Workout = Workout;
