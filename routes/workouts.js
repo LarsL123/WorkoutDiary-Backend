@@ -8,6 +8,7 @@ const validateParam = require("../middlewear/validateParam");
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 //Get the last elements of an array: https://docs.mongodb.com/manual/reference/operator/projection/slice/
 
@@ -34,7 +35,7 @@ router.get(
     validateParam(Workout.validateDate, "to")
   ],
   async (req, res) => {
-    const { data } = await UserData.findOne(
+    const response = await UserData.findOne(
       {
         user: mongoose.Types.ObjectId(req.user._id)
       },
@@ -49,6 +50,10 @@ router.get(
         }
       }
     );
+
+    if(!("data" in response)) return res.send([]);
+
+    const data = response.data;
     data.sort((a, b) => {
       return new Date(b.date) - new Date(a.date);
     });
