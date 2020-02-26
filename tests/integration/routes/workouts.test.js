@@ -55,6 +55,58 @@ describe("/api/workouts", () => {
     });
   });
 
+  describe("Get: /from/to", () => {
+    let user;
+    let token;
+    let date;
+    let fromDate = new Date("01.01.2019");
+    let toDate = new Date("01.01.2021");
+
+    beforeEach(async () => {
+      user = new User();
+      token = user.generateAuthToken();
+      date = new Date("01.01.2020");
+      fromDate = new Date("01.01.2019");
+      toDate = new Date("01.01.2021");
+      workout = { title: "workout1", description: "This is a workout", date: date};
+      await user.createUserDataEntry();
+      await UserData.findOneAndUpdate(
+        { user: mongoose.Types.ObjectId(user._id) },
+        { $push: { data: workout } }
+      );
+    });
+
+    afterEach(async () => {
+      await UserData.deleteMany({});
+    });
+
+    const exec = () => {
+      return request(server)
+        .get(`/api/workouts/${fromDate}/${toDate}`)
+        .set("x-auth-token", token)
+        .send();
+    };
+    it("should return 401 if the user is not logged in", async () => {
+      token = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
+    });
+    it("should return an array containing the callers workouts", async () => {
+      const res = await exec();
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body[0]).toHaveProperty("title", "workout1");
+      expect(res.body[0]).toHaveProperty("description");
+    });
+    it("should return 200 and an empty array if there are no workouts in the given timespan", async () => {
+      formDate = new Date("01.01.1995");
+      toDate = new Date("01.01.1996");
+      const res = await exec();
+      expect(res.status).toBe(200);
+      expect(res.data).toBe(undefined);
+    });
+  });
+
   describe("POST /", () => {
     let user;
     let token;

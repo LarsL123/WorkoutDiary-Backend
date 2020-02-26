@@ -1,5 +1,5 @@
 {
   "isCircleCI": "false",
   "jwtPrivateKey": "",
-  "db": "mongodb+srv://dev-user:dev-password@workouts-testanddev-t5jay.mongodb.net/dev?retryWrites=true&w=majority"
+  "db": "mongodb://localhost/workouts_dev"
 }
