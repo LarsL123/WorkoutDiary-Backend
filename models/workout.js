@@ -54,9 +54,18 @@ workoutSchema.statics.createNewWorkout = function(body) {
   return new Workout(workout);
 };
 
-workoutSchema.statics.validateDate = function(date){
-  return joi.date().required().validate(date);
-}
+workoutSchema.statics.validateDate = function(date) {
+  return joi
+    .date()
+    .required()
+    .validate(date);
+};
+
+workoutSchema.statics.toUTCDate = function(dateString) {
+  let date = new Date(dateString);
+  date -= date.getTimezoneOffset() * 60 * 1000; //timeZoneOffset in milliseconds.
+  return new Date(date);
+};
 
 Workout = mongoose.model("Workout", workoutSchema);
 

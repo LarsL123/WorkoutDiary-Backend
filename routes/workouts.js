@@ -33,14 +33,6 @@ router.get(
     validateParam(Workout.validateDate, "to")
   ],
   async (req, res) => {
-    let fromDate = new Date(req.params.from);
-    fromDate -= fromDate.getTimezoneOffset() * 60 * 1000; //timeZoneOffset in milliseconds.
-    fromDate = new Date(fromDate);
-
-    let toDate = new Date(req.params.to);
-    toDate -= toDate.getTimezoneOffset() * 60 * 1000; //timeZoneOffset in milliseconds.
-    toDate = new Date(toDate);
-
     const response = await UserData.aggregate([
       // Filter possible documents
       { $match: { user: mongoose.Types.ObjectId(req.user._id) } },
@@ -49,7 +41,14 @@ router.get(
       { $unwind: "$data" },
 
       // Match specific array elements
-      { $match: { "data.date": { $gte: fromDate, $lte: toDate} } },
+      {
+        $match: {
+          "data.date": {
+            $gte: Workout.toUTCDate(req.params.from),
+            $lte: Workout.toUTCDate(req.params.to)
+          }
+        }
+      },
 
       // Group back to array form
       {
