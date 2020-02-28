@@ -10,8 +10,6 @@ const { UserData } = require("../models/userData");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 
-//Get the last elements of an array: https://docs.mongodb.com/manual/reference/operator/projection/slice/
-
 router.get("/", auth, async (req, res) => {
   const { data } = await UserData.findOne(
     {
@@ -35,25 +33,35 @@ router.get(
     validateParam(Workout.validateDate, "to")
   ],
   async (req, res) => {
-    const response = await UserData.findOne(
+    const response = await UserData.aggregate([
+      // Filter possible documents
+      { $match: { user: mongoose.Types.ObjectId(req.user._id) } },
+
+      // Unwind the array to denormalize
+      { $unwind: "$data" },
+
+      // Match specific array elements
       {
-        user: mongoose.Types.ObjectId(req.user._id)
-      },
-      {
-        data: {
-          $elemMatch: {
-            date: {
-              $gte: req.params.from,
-              $lt: req.params.to
-            }
+        $match: {
+          "data.date": {
+            $gte: Workout.toUTCDate(req.params.from),
+            $lte: Workout.toUTCDate(req.params.to)
           }
         }
+      },
+
+      // Group back to array form
+      {
+        $group: {
+          _id: "$_id",
+          data: { $push: "$data" }
+        }
       }
-    );
+    ]);
 
-    if(!("data" in response)) return res.send([]);
+    if (response.length === 0) return res.send([]);
 
-    const data = response.data;
+    const data = response[0].data;
     data.sort((a, b) => {
       return new Date(b.date) - new Date(a.date);
     });
@@ -72,6 +80,7 @@ router.post("/", [auth, joiValidation(validate)], async (req, res) => {
 
   res.send(workout);
 });
+
 router.put(
   "/:id",
   [auth, validateObjectId, joiValidation(validate)],
@@ -94,6 +103,7 @@ router.put(
     res.send(newWorkout);
   }
 );
+
 router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   const workouts = await UserData.findOneAndUpdate(
     { user: req.user._id },
