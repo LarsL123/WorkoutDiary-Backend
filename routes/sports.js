@@ -1,48 +1,48 @@
 const express = require("express");
 const router = express.Router();
-const { Activity, validate } = require("../models/activity");
+const { Sport, validate } = require("../models/sport");
 const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
 const admin = require("../middlewear/admin");
 const joiValdidation = require("../middlewear/joiValidation");
 
 router.get("/", async (req, res) => {
-  const activities = await Activity.find().sort();
-  res.send(activities);
+  const sports = await Sport.find().sort();
+  res.send(sports);
 });
 
 router.get("/:id", validateObjectId, async (req, res) => {
-  const activity = await Activity.findById(req.params.id);
-  if (!activity) return res.status(404).send("Did not find activity");
-  res.send(activity);
+  const sport = await Sport.findById(req.params.id);
+  if (!sport) return res.status(404).send("Did not find the sport");
+  res.send(sport);
 });
 
 router.post("/", [auth, admin, joiValdidation(validate)], async (req, res) => {
-  let activity = new Activity({ name: req.body.name });
-  activity = await activity.save();
+  let sport = new Sport({ name: req.body.name });
+  sport = await sport.save();
 
-  res.send(activity);
+  res.send(sport);
 });
 
 router.put(
   "/:id",
   [auth, admin, validateObjectId, joiValdidation(validate)],
   async (req, res) => {
-    const activity = await Activity.findByIdAndUpdate(
+    const sport = await Sport.findByIdAndUpdate(
       req.params.id,
       { name: req.body.name },
       { new: true }
     );
 
-    if (!activity) return res.status(404).send("Did not find the activity");
-    res.send(activity);
+    if (!sport) return res.status(404).send("Did not find the sport");
+    res.send(sport);
   }
 );
 
 router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
-  const activity = await Activity.findByIdAndDelete(req.params.id);
-  if (!activity) return res.status(404).send("Did not find the activity");
-  res.send(activity);
+  const sport = await Sport.findByIdAndDelete(req.params.id);
+  if (!sport) return res.status(404).send("Did not find the sport");
+  res.send(sport);
 });
 
 module.exports = router;

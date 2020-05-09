@@ -1,58 +1,50 @@
 const request = require("supertest");
-const { Activity } = require("../../../models/activity");
+const { Sport } = require("../../../models/sport");
 const mongoose = require("mongoose");
 const { User } = require("../../../models/user");
 
-/*
- *  Endpoints:
-    -Get/ returns all activities
-    -get/:id returns a specific activity
-    -post create a new activity [admin only!]
-    -put/:id change properties for the given activity [admin only!]
-    -delete/:id delete an activity [admin only!]
-  *
- */
-describe("/api/activities", () => {
+
+describe("/api/sports", () => {
   let server;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     server = require("../../../index");
+    await Sport.deleteMany({});
   });
 
   afterAll(async () => {
-    await Activity.deleteMany({});
     await server.close();
   });
 
   describe("GET /", () => {
     afterEach(async () => {
-      await Activity.deleteMany({});
+      await Sport.deleteMany({});
     });
-    it("should return all activities in the database", async () => {
-      await Activity.collection.insertMany([
-        { name: "activity1" },
-        { name: "activity2" },
-        { name: "activity3" }
+    it("should return all sports in the database", async () => {
+      await Sport.collection.insertMany([
+        { name: "sport1" },
+        { name: "sport2" },
+        { name: "sport3" }
       ]);
-      const res = await request(server).get("/api/activities");
+      const res = await request(server).get("/api/sports");
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(3);
-      expect(res.body.some(g => g.name === "activity1")).toBeTruthy();
+      expect(res.body.some(g => g.name === "sport1")).toBeTruthy();
     });
   });
   describe("GET /:id", () => {
     let id;
     beforeEach(async () => {
-      const activity = new Activity({ name: "activity1" });
-      await activity.save();
-      id = activity._id;
+      const sport = new Sport({ name: "sport1" });
+      await sport.save();
+      id = sport._id;
     });
     afterEach(async () => {
-      await Activity.deleteMany({});
+      await Sport.deleteMany({});
     });
     const exec = () => {
       return request(server)
-        .get("/api/activities/" + id)
+        .get("/api/sports/" + id)
         .send();
     };
     it("should return 400 if the id is invalid", async () => {
@@ -65,9 +57,9 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(404);
     });
-    it("should return the activity with the given id", async () => {
+    it("should return the sport with the given id", async () => {
       const res = await exec();
-      expect(res.body.name).toBe("activity1");
+      expect(res.body.name).toBe("sport1");
     });
   });
 
@@ -75,16 +67,16 @@ describe("/api/activities", () => {
     let name;
     let token;
     beforeEach(() => {
-      name = "activity1";
+      name = "sport1";
       token = new User({ isAdmin: true }).generateAuthToken();
     });
 
     afterEach(async () => {
-      await Activity.deleteMany({});
+      await Sport.deleteMany({});
     });
     const exec = () => {
       return request(server)
-        .post("/api/activities")
+        .post("/api/sports")
         .set("x-auth-token", token)
         .send({ name });
     };
@@ -95,7 +87,7 @@ describe("/api/activities", () => {
       expect(res.status).toBe(400);
     });
     it("should return 400 if the name is less than 3 characters", async () => {
-      name = "12";
+      name = "AB";
       const res = await exec();
       expect(res.status).toBe(400);
     });
@@ -109,38 +101,38 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(401);
     });
-    it("should save the activity if it was valid", async () => {
+    it("should save the sport if it was valid", async () => {
       await exec();
-      const activity = await Activity.find({ name: "activity1" });
-      expect(activity).not.toBeNull();
+      const sport = await Sport.find({ name: "sport1" });
+      expect(sport).not.toBeNull();
     });
-    it("should return the activity if it was successfully created", async () => {
+    it("should return the sport if it was successfully created", async () => {
       const res = await exec();
       expect(res.body).toHaveProperty("_id");
-      expect(res.body).toHaveProperty("name", "activity1");
+      expect(res.body).toHaveProperty("name", "sport1");
     });
   });
   describe("PUT /:id", () => {
     let id;
     let newName;
-    let activity;
+    let sport;
     let token;
     const exec = () => {
       return request(server)
-        .put("/api/activities/" + id)
+        .put("/api/sports/" + id)
         .set("x-auth-token", token)
         .send({ name: newName });
     };
     beforeEach(async () => {
-      activity = new Activity({ name: "activity1" });
-      await activity.save();
+      sport = new Sport({ name: "sport1" });
+      await sport.save();
 
-      id = activity._id;
+      id = sport._id;
       newName = "updatedName";
       token = new User({ isAdmin: true }).generateAuthToken();
     });
     afterEach(async () => {
-      await Activity.deleteMany({});
+      await Sport.deleteMany({});
     });
     it("should return 400 if objectId was invalid", async () => {
       id = 1;
@@ -169,8 +161,8 @@ describe("/api/activities", () => {
     });
     it("should update the genre in DB", async () => {
       await exec();
-      const activity = await Activity.find({ name: "updatedName" });
-      expect(activity).not.toBeNull();
+      const sport = await Sport.find({ name: "updatedName" });
+      expect(sport).not.toBeNull();
     });
     it("should return the updated genre", async () => {
       const res = await exec();
@@ -180,22 +172,22 @@ describe("/api/activities", () => {
   });
 
   describe("DELETE /:id", () => {
-    let activity;
+    let sport;
     let id;
     let token;
     beforeEach(async () => {
-      activity = new Activity({ name: "activity1" });
-      await activity.save();
-      id = activity._id;
+      sport = new Sport({ name: "sport1" });
+      await sport.save();
+      id = sport._id;
       token = new User({ isAdmin: true }).generateAuthToken();
     });
     afterEach(async () => {
-      await Activity.deleteMany({});
+      await Sport.deleteMany({});
     });
 
     const exec = () => {
       return request(server)
-        .delete("/api/activities/" + id)
+        .delete("/api/sports/" + id)
         .set("x-auth-token", token)
         .send();
     };
@@ -219,14 +211,14 @@ describe("/api/activities", () => {
       const res = await exec();
       expect(res.status).toBe(401);
     });
-    it("should delete the activity", async () => {
+    it("should delete the sport", async () => {
       await exec();
-      const activity = await Activity.findById(id);
-      expect(activity).toBeNull();
+      const sport = await Sport.findById(id);
+      expect(sport).toBeNull();
     });
     it("should retrun the deleted genre", async () => {
       const res = await exec();
-      expect(res.body).toHaveProperty("name", "activity1");
+      expect(res.body).toHaveProperty("name", "sport1");
     });
   });
 });

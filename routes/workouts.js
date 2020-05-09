@@ -8,7 +8,6 @@ const validateParam = require("../middlewear/validateParam");
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
 const mongoose = require("mongoose");
-const _ = require("lodash");
 
 router.get("/", auth, async (req, res) => {
   const { data } = await UserData.findOne(
