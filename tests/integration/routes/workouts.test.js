@@ -68,7 +68,11 @@ describe("/api/workouts", () => {
       date = new Date("01.01.2020");
       fromDate = new Date("01.01.2019");
       toDate = new Date("01.01.2021");
-      workout = { title: "workout1", description: "This is a workout", date: date};
+      workout = {
+        title: "workout1",
+        description: "This is a workout",
+        date: date,
+      };
       await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
@@ -164,12 +168,12 @@ describe("/api/workouts", () => {
       token = user.generateAuthToken();
       workout = new Workout({
         title: "workout1",
-        description: "This is a workout"
+        description: "This is a workout",
       });
       workoutId = workout._id;
       paylod = {
         title: "newTitle",
-        description: "The acitvivty has recived a new description"
+        description: "The acitvivty has recived a new description",
       };
       await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
@@ -219,7 +223,7 @@ describe("/api/workouts", () => {
 
       const userDataInDB = await UserData.findOne({ user: user._id });
       const workoutInDB = userDataInDB.data.find(
-        w => w._id.toHexString() == workoutId
+        (w) => w._id.toHexString() == workoutId
       );
       expect(workoutInDB).toHaveProperty("title", paylod.title);
       expect(workoutInDB).toHaveProperty("description", paylod.description);
@@ -241,7 +245,7 @@ describe("/api/workouts", () => {
       token = user.generateAuthToken();
       workout = new Workout({
         title: "workout1",
-        description: "This is a workout"
+        description: "This is a workout",
       });
       workoutId = workout._id;
       await user.createUserDataEntry();
@@ -282,13 +286,14 @@ describe("/api/workouts", () => {
     it("should delete the workout from the DB", async () => {
       await exec();
       const userDataInDB = await UserData.findOne({
-        user: mongoose.Types.ObjectId(user._id)
+        user: mongoose.Types.ObjectId(user._id),
       });
       expect(userDataInDB.data.length).toBe(0);
     });
     it("should return the deleted activity", async () => {
       const res = await exec();
       expect(res.body).toHaveProperty("_id");
+      expect(res.body._id).toBe(workoutId.toString());
       expect(res.body).toHaveProperty("title", workout.title);
       expect(res.body).toHaveProperty("description", workout.description);
     });
