@@ -5,7 +5,6 @@ const { Sport, validate } = require("../models/sport");
 const { UserData } = require("../models/userData");
 const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
-const admin = require("../middlewear/admin");
 const joiValdidation = require("../middlewear/joiValidation");
 
 router.get("/", auth, async (req, res) => {
@@ -45,26 +44,5 @@ router.delete("/:id", [auth, validateObjectId], async (req, res) => {
 
   res.send(deletedSport);
 });
-
-// router.put(
-//   "/:id",
-//   [auth, admin, validateObjectId, joiValdidation(validate)],
-//   async (req, res) => {
-//     const sport = await Sport.findByIdAndUpdate(
-//       req.params.id,
-//       { name: req.body.name },
-//       { new: true }
-//     );
-
-//     if (!sport) return res.status(404).send("Did not find the sport");
-//     res.send(sport);
-//   }
-// );
-
-// router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
-//   const sport = await Sport.findByIdAndDelete(req.params.id);
-//   if (!sport) return res.status(404).send("Did not find the sport");
-//   res.send(sport);
-// });
 
 module.exports = router;
