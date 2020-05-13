@@ -8,12 +8,11 @@ const validateParam = require("../middlewear/validateParam");
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
 const mongoose = require("mongoose");
-const _ = require("lodash");
 
 router.get("/", auth, async (req, res) => {
   const { data } = await UserData.findOne(
     {
-      user: mongoose.Types.ObjectId(req.user._id)
+      user: mongoose.Types.ObjectId(req.user._id),
     },
     { data: 1 }
   );
@@ -30,7 +29,7 @@ router.get(
   [
     auth,
     validateParam(Workout.validateDate, "from"),
-    validateParam(Workout.validateDate, "to")
+    validateParam(Workout.validateDate, "to"),
   ],
   async (req, res) => {
     const response = await UserData.aggregate([
@@ -45,18 +44,18 @@ router.get(
         $match: {
           "data.date": {
             $gte: Workout.toUTCDate(req.params.from),
-            $lte: Workout.toUTCDate(req.params.to)
-          }
-        }
+            $lte: Workout.toUTCDate(req.params.to),
+          },
+        },
       },
 
       // Group back to array form
       {
         $group: {
           _id: "$_id",
-          data: { $push: "$data" }
-        }
-      }
+          data: { $push: "$data" },
+        },
+      },
     ]);
 
     if (response.length === 0) return res.send([]);
@@ -73,7 +72,7 @@ router.get(
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
   const workout = Workout.createNewWorkout(req.body);
 
-  await UserData.findOneAndUpdate(
+  await UserData.update(
     { user: mongoose.Types.ObjectId(req.user._id) },
     { $push: { data: workout } }
   );
@@ -105,12 +104,13 @@ router.put(
 );
 
 router.delete("/:id", [auth, validateObjectId], async (req, res) => {
-  const workouts = await UserData.findOneAndUpdate(
+  const { data } = await UserData.findOneAndUpdate(
     { user: req.user._id },
-    { $pull: { data: { _id: req.params.id } } }
+    { $pull: { data: { _id: req.params.id } } },
+    { fields: { data: 1 } }
   );
 
-  const deletedWorkout = workouts.data.find(w => w._id == req.params.id); //Returns true if the deleted document existed before the delete operation.
+  const deletedWorkout = data.find((w) => w._id == req.params.id); //Returns true if the deleted document existed before the delete operation.
   if (!deletedWorkout) return res.status(404).send("Did not find the workout");
   res.send(deletedWorkout);
 });

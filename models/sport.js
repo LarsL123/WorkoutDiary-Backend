@@ -1,8 +1,8 @@
 const mogoose = require("mongoose");
 const Joi = require("joi");
 
-const Activity = mogoose.model(
-  "Activity",
+const Sport = mogoose.model(
+  "Sport",
   new mogoose.Schema({
     name: {
       type: String,
@@ -13,15 +13,15 @@ const Activity = mogoose.model(
   })
 );
 
-function validateActivity(activity) {
+function validateSport(sport) {
   const schema = {
     name: Joi.string()
       .min(3)
       .max(70)
       .required()
   };
-  return Joi.validate(activity, schema);
+  return Joi.validate(sport, schema);
 }
 
-exports.validate = validateActivity;
-exports.Activity = Activity;
+exports.validate = validateSport;
+exports.Sport = Sport;
