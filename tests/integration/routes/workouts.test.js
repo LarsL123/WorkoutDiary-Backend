@@ -55,7 +55,7 @@ describe("/api/workouts", () => {
     });
   });
 
-  describe("Get: /from/to", () => {
+  describe("Get /:from/:to", () => {
     let user;
     let token;
     let date;
@@ -65,14 +65,16 @@ describe("/api/workouts", () => {
     beforeEach(async () => {
       user = new User();
       token = user.generateAuthToken();
-      date = new Date("01.01.2020");
       fromDate = new Date("01.01.2019");
+      date = new Date("01.01.2020");
       toDate = new Date("01.01.2021");
+
       workout = {
         title: "workout1",
         description: "This is a workout",
         date: date,
       };
+
       await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
@@ -142,6 +144,7 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
+
     it("should save the workout to the correct user", async () => {
       await exec();
       const res = await UserData.findOne({ user: user._id });
@@ -202,7 +205,7 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    //Are there any required fealds
+    //Are there any required field
     // it("should return 400 if a required field is missing", async () => {
     //   delete paylod.title;
     //   const res = await exec();
