@@ -70,6 +70,20 @@ router.get(
 );
 
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
+  if (req.body.sport) {
+    const { sports } = await UserData.findOne(
+      { user: mongoose.Types.ObjectId(req.user._id) },
+      { sports: { $elemMatch: { _id: req.body.sport } } }
+    );
+
+    const [sport] = sports;
+
+    if (!sport)
+      return res.status(400).send("The specified sport is not specified");
+
+    req.body.sport = sport;
+  }
+
   const workout = Workout.createNewWorkout(req.body);
 
   await UserData.update(

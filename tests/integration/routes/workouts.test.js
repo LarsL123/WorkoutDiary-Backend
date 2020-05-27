@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { User } = require("../../../models/user");
 const { UserData } = require("../../../models/userData");
 const { Workout } = require("../../../models/workout");
+const { Sport } = require("../../../models/sport");
 
 //TODO:
 //GET /:id get a specific elemet of the array.
@@ -143,6 +144,28 @@ describe("/api/workouts", () => {
       workout = { aRandomValue: "randomString" };
       const res = await exec();
       expect(res.status).toBe(400);
+    });
+
+    it("should return 400 if the given sport dont exists for the specific user", async () => {
+      workout.sport = new mongoose.Types.ObjectId();
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+
+    it("should store the sport to the workouts if a valid sport is given", async () => {
+      const sport = new Sport({ name: "sport1" });
+      await UserData.findOneAndUpdate(
+        { user: mongoose.Types.ObjectId(user._id) },
+        { $push: { sports: sport } }
+      );
+      workout.sport = sport._id;
+
+      await exec();
+
+      const res = await UserData.findOne({ user: user._id });
+
+      expect(res.data[0]).toHaveProperty("sport._id", sport._id);
+      expect(res.data[0]).toHaveProperty("sport.name", "sport1");
     });
 
     it("should save the workout to the correct user", async () => {

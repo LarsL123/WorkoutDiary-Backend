@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
-const joi = require("joi");
+const Joi = require("joi");
+const { Sport } = require("./sport");
 
 let Workout;
 
 const workoutSchema = new mongoose.Schema({
   title: { type: String },
   description: { type: String },
-  type: { type: String },
+  sport: { type: Sport.schema },
   date: { type: Date, default: Date.now },
   kilometers: { type: Number, min: 0, max: 1000 },
   zones: {
@@ -16,52 +17,46 @@ const workoutSchema = new mongoose.Schema({
     4: { type: Number, min: 0, default: 0 },
     5: { type: Number, min: 0, default: 0 },
     6: { type: Number, min: 0, default: 0 },
-    7: { type: Number, min: 0, default: 0 }
-  }
+    7: { type: Number, min: 0, default: 0 },
+  },
 });
 
 function validateWorkout(workout) {
   const schema = {
-    title: joi.string(),
-    type: joi.string(),
-    description: joi.string(),
-    date: joi.date(),
-    kilometers: joi
-      .number()
-      .min(0)
-      .max(1000),
+    title: Joi.string(),
+    sport: Joi.objectId(),
+    description: Joi.string(),
+    date: Joi.date(),
+    kilometers: Joi.number().min(0).max(1000),
     zones: {
-      1: joi.number().min(0),
-      2: joi.number().min(0),
-      3: joi.number().min(0),
-      4: joi.number().min(0),
-      5: joi.number().min(0),
-      6: joi.number().min(0),
-      7: joi.number().min(0)
-    }
+      1: Joi.number().min(0),
+      2: Joi.number().min(0),
+      3: Joi.number().min(0),
+      4: Joi.number().min(0),
+      5: Joi.number().min(0),
+      6: Joi.number().min(0),
+      7: Joi.number().min(0),
+    },
   };
-  return joi.validate(workout, schema);
+  return Joi.validate(workout, schema);
 }
 
-workoutSchema.statics.createWorkoutFromId = function(body, id) {
+workoutSchema.statics.createWorkoutFromId = function (body, id) {
   const workout = new Workout(body);
   workout._id = id;
   return workout;
 };
 
-workoutSchema.statics.createNewWorkout = function(body) {
+workoutSchema.statics.createNewWorkout = function (body) {
   const workout = body;
   return new Workout(workout);
 };
 
-workoutSchema.statics.validateDate = function(date) {
-  return joi
-    .date()
-    .required()
-    .validate(date);
+workoutSchema.statics.validateDate = function (date) {
+  return Joi.date().required().validate(date);
 };
 
-workoutSchema.statics.toUTCDate = function(dateString) {
+workoutSchema.statics.toUTCDate = function (dateString) {
   let date = new Date(dateString);
   date -= date.getTimezoneOffset() * 60 * 1000; //timeZoneOffset in milliseconds.
   return new Date(date);
