@@ -70,10 +70,12 @@ router.get(
 );
 
 router.post("/", [auth, joiValidation(validate)], async (req, res) => {
-  if (req.body.sport) {
+  const { sport: sportId } = req.body;
+  if (sportId) {
+
     const { sports } = await UserData.findOne(
       { user: mongoose.Types.ObjectId(req.user._id) },
-      { sports: { $elemMatch: { _id: req.body.sport } } }
+      { sports: { $elemMatch: { _id: sportId } } }
     );
 
     const [sport] = sports;
@@ -107,10 +109,6 @@ router.put(
 
     if (result.n === 0) {
       return res.status(404).send("The workout does not exist");
-    }
-
-    if (result.nModified === 0) {
-      return res.send("No workout was modified.");
     }
 
     res.send(newWorkout);
