@@ -4,6 +4,7 @@ const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
 const joiValidation = require("../middlewear/joiValidation");
 const validateParam = require("../middlewear/validateParam");
+const fetchSport = require("../middlewear/fetchSport");
 
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
@@ -69,23 +70,7 @@ router.get(
   }
 );
 
-router.post("/", [auth, joiValidation(validate)], async (req, res) => {
-  const { sport: sportId } = req.body;
-  if (sportId) {
-
-    const { sports } = await UserData.findOne(
-      { user: mongoose.Types.ObjectId(req.user._id) },
-      { sports: { $elemMatch: { _id: sportId } } }
-    );
-
-    const [sport] = sports;
-
-    if (!sport)
-      return res.status(400).send("The specified sport is not specified");
-
-    req.body.sport = sport;
-  }
-
+router.post("/", [auth, joiValidation(validate), fetchSport], async (req, res) => {
   const workout = Workout.createNewWorkout(req.body);
 
   await UserData.update(
@@ -98,7 +83,7 @@ router.post("/", [auth, joiValidation(validate)], async (req, res) => {
 
 router.put(
   "/:id",
-  [auth, validateObjectId, joiValidation(validate)],
+  [auth, validateObjectId, joiValidation(validate), fetchSport],
   async (req, res) => {
     const newWorkout = Workout.createWorkoutFromId(req.body, req.params.id);
 
