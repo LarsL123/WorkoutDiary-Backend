@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { User } = require("../../../models/user");
 const { UserData } = require("../../../models/userData");
 const { Workout } = require("../../../models/workout");
+const { Sport } = require("../../../models/sport");
 
 //TODO:
 //GET /:id get a specific elemet of the array.
@@ -10,6 +11,9 @@ const { Workout } = require("../../../models/workout");
 
 describe("/api/workouts", () => {
   let server;
+  let user;
+  let token;
+
   beforeAll(() => {
     server = require("../../../index");
   });
@@ -18,21 +22,23 @@ describe("/api/workouts", () => {
     await server.close();
   });
 
+  beforeEach(async () => {
+    user = new User();
+    token = user.generateAuthToken();
+    await user.createUserDataEntry();
+  });
+
+  afterEach(async () => {
+    await UserData.deleteMany({});
+  });
+
   describe("Get /", () => {
-    let user;
-    let token;
     beforeEach(async () => {
-      user = new User();
-      token = user.generateAuthToken();
       workout = { title: "workout1", description: "This is a workout" };
-      await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
         { $push: { data: workout } }
       );
-    });
-    afterEach(async () => {
-      await UserData.deleteMany({});
     });
 
     const exec = () => {
@@ -55,33 +61,26 @@ describe("/api/workouts", () => {
     });
   });
 
-  describe("Get: /from/to", () => {
-    let user;
-    let token;
+  describe("Get /:from/:to", () => {
     let date;
     let fromDate = new Date("01.01.2019");
     let toDate = new Date("01.01.2021");
 
     beforeEach(async () => {
-      user = new User();
-      token = user.generateAuthToken();
-      date = new Date("01.01.2020");
       fromDate = new Date("01.01.2019");
+      date = new Date("01.01.2020");
       toDate = new Date("01.01.2021");
+
       workout = {
         title: "workout1",
         description: "This is a workout",
         date: date,
       };
-      await user.createUserDataEntry();
+
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
         { $push: { data: workout } }
       );
-    });
-
-    afterEach(async () => {
-      await UserData.deleteMany({});
     });
 
     const exec = () => {
@@ -112,17 +111,10 @@ describe("/api/workouts", () => {
   });
 
   describe("POST /", () => {
-    let user;
-    let token;
     let workout;
+
     beforeEach(async () => {
-      user = new User();
-      token = user.generateAuthToken();
-      await user.createUserDataEntry();
       workout = { title: "workout1", description: "This is a workout" };
-    });
-    afterEach(async () => {
-      await UserData.deleteMany({});
     });
 
     const exec = () => {
@@ -142,6 +134,29 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
+
+    it("should return 400 if the given sport dont exists for the specific user", async () => {
+      workout.sport = new mongoose.Types.ObjectId();
+      const res = await exec();
+      expect(res.status).toBe(400);
+    });
+
+    it("should store the sport to the workouts if a valid sport is given", async () => {
+      const sport = new Sport({ name: "sport1" });
+      await UserData.findOneAndUpdate(
+        { user: mongoose.Types.ObjectId(user._id) },
+        { $push: { sports: sport } }
+      );
+      workout.sport = sport._id;
+
+      await exec();
+
+      const res = await UserData.findOne({ user: user._id });
+
+      expect(res.data[0]).toHaveProperty("sport._id", sport._id);
+      expect(res.data[0]).toHaveProperty("sport.name", "sport1");
+    });
+
     it("should save the workout to the correct user", async () => {
       await exec();
       const res = await UserData.findOne({ user: user._id });
@@ -158,14 +173,10 @@ describe("/api/workouts", () => {
   });
 
   describe("PUT /:id", () => {
-    let user;
-    let token;
     let workout;
     let workoutId;
     let paylod;
     beforeEach(async () => {
-      user = new User();
-      token = user.generateAuthToken();
       workout = new Workout({
         title: "workout1",
         description: "This is a workout",
@@ -175,15 +186,10 @@ describe("/api/workouts", () => {
         title: "newTitle",
         description: "The acitvivty has recived a new description",
       };
-      await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
         { $push: { data: workout } }
       );
-    });
-
-    afterEach(async () => {
-      await UserData.deleteMany({});
     });
 
     const exec = () => {
@@ -202,13 +208,7 @@ describe("/api/workouts", () => {
       const res = await exec();
       expect(res.status).toBe(400);
     });
-    //Are there any required fealds
-    // it("should return 400 if a required field is missing", async () => {
-    //   delete paylod.title;
-    //   const res = await exec();
-    //   expect(res.status).toBe(400);
-    // });
-    it("should return 400 if the request contains an extra fields", async () => {
+    it("should return 400 if the request contains any extra fields", async () => {
       paylod.randomNewProptery = "A suspicious string";
       const res = await exec();
       expect(res.status).toBe(400);
@@ -223,10 +223,25 @@ describe("/api/workouts", () => {
 
       const userDataInDB = await UserData.findOne({ user: user._id });
       const workoutInDB = userDataInDB.data.find(
-        (w) => w._id.toHexString() == workoutId
+        (workout) => workout._id.toHexString() == workoutId
       );
       expect(workoutInDB).toHaveProperty("title", paylod.title);
       expect(workoutInDB).toHaveProperty("description", paylod.description);
+    });
+    it("should add the sport, matching the given sport objectId, to the new workout object", async () => {
+      const sport = new Sport({ name: "sport1" });
+      await UserData.findOneAndUpdate(
+        { user: mongoose.Types.ObjectId(user._id) },
+        { $push: { sports: sport } }
+      );
+      paylod.sport = sport._id;
+
+      const res = await exec();
+
+      expect(res.body.sport).toMatchObject({
+        _id: sport._id.toString(),
+        name: sport.name,
+      });
     });
     it("should return the updated workout", async () => {
       const res = await exec();
@@ -236,27 +251,19 @@ describe("/api/workouts", () => {
   });
 
   describe("DELETE /", () => {
-    let user;
-    let token;
     let workout;
     let workoutId;
+
     beforeEach(async () => {
-      user = new User();
-      token = user.generateAuthToken();
       workout = new Workout({
         title: "workout1",
         description: "This is a workout",
       });
       workoutId = workout._id;
-      await user.createUserDataEntry();
       await UserData.findOneAndUpdate(
         { user: mongoose.Types.ObjectId(user._id) },
         { $push: { data: workout } }
       );
-    });
-
-    afterEach(async () => {
-      await UserData.deleteMany({});
     });
 
     const exec = () => {
@@ -292,10 +299,11 @@ describe("/api/workouts", () => {
     });
     it("should return the deleted activity", async () => {
       const res = await exec();
-      expect(res.body).toHaveProperty("_id");
-      expect(res.body._id).toBe(workoutId.toString());
-      expect(res.body).toHaveProperty("title", workout.title);
-      expect(res.body).toHaveProperty("description", workout.description);
+      expect(res.body).toMatchObject({
+        _id: workoutId.toString(),
+        title: workout.title,
+        description: workout.description,
+      });
     });
   });
 });

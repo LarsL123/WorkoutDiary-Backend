@@ -4,6 +4,7 @@ const validateObjectId = require("../middlewear/validateObjectId");
 const auth = require("../middlewear/auth");
 const joiValidation = require("../middlewear/joiValidation");
 const validateParam = require("../middlewear/validateParam");
+const fetchSport = require("../middlewear/fetchSport");
 
 const { Workout, validate } = require("../models/workout");
 const { UserData } = require("../models/userData");
@@ -69,7 +70,7 @@ router.get(
   }
 );
 
-router.post("/", [auth, joiValidation(validate)], async (req, res) => {
+router.post("/", [auth, joiValidation(validate), fetchSport], async (req, res) => {
   const workout = Workout.createNewWorkout(req.body);
 
   await UserData.update(
@@ -82,7 +83,7 @@ router.post("/", [auth, joiValidation(validate)], async (req, res) => {
 
 router.put(
   "/:id",
-  [auth, validateObjectId, joiValidation(validate)],
+  [auth, validateObjectId, joiValidation(validate), fetchSport],
   async (req, res) => {
     const newWorkout = Workout.createWorkoutFromId(req.body, req.params.id);
 
@@ -93,10 +94,6 @@ router.put(
 
     if (result.n === 0) {
       return res.status(404).send("The workout does not exist");
-    }
-
-    if (result.nModified === 0) {
-      return res.send("No workout was modified.");
     }
 
     res.send(newWorkout);

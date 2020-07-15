@@ -1,5 +1,5 @@
 {
   "isCircleCI": "false",
-  "jwtPrivateKey": "",
+  "jwtPrivateKey": "mySecreyKey",
   "db": "mongodb://localhost/workouts_dev"
 }

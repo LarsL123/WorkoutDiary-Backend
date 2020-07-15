@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --watchAll --verbose --runInBand --coverage",
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "ci:test": "jest --verbose --runInBand  --coverage",
     "docker:build": "docker build -t larsl123/workoutdiarybackend:latest .",
     "docker:login": "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD",
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "jest": "^24.8.0",
+    "nodemon": "^2.0.4",
     "supertest": "^4.0.2"
   }
 }

@@ -6,7 +6,7 @@ const router = express.Router();
 const { User } = require("../../models/user");
 const joiValidation = require("../../middlewear/joiValidation");
 
-//    Auth endpoint. All registered users uses this endpoint to login/get their JWT
+//Auth endpoint. All registered users uses this endpoint to login and get their JWT
 
 router.post("/", joiValidation(validate), async (req, res) => {
   let user = await User.findOne({ email: req.body.email });

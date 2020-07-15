@@ -21,4 +21,5 @@ const server = app.listen(
 server.on("close", async function() {
   await require("./startup/db").stopDB();
 });
+
 module.exports = server;
